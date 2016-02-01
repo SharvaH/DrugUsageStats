@@ -1,0 +1,84 @@
+---
+title: "Drug Usage among Americans"
+output: html_document
+---
+#### By Sharva Hassamal  
+*Data courtsey of 538*
+
+
+##Breakdown of Usage by Substance
+
+*Usage Defined by percentage of those in an age group who used substance in the past 12 months*
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+DrugRaw <- read.csv("drug-use-by-age.csv")
+
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+
+
+Drugs <- select(DrugRaw, age, n, alcohol.use, marijuana.use, cocaine.use, heroin.use, crack.use, hallucinogen.use, pain.releiver.use, oxycontin.use, meth.use)
+
+drugs2 <- Drugs %>%
+  gather(drug, usage, alcohol.use:meth.use) %>%
+  mutate(drug = as.factor(drug))
+
+ggplot(data=drugs2, aes(x=age, y=usage)) +
+  geom_bar(stat = 'identity', aes(fill=age)) +
+  facet_wrap(~drug) +
+  coord_flip() +
+  theme_minimal()
+```
+
+
+###Substance Use for Ages 22-23
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+drugs3 <- Drugs %>%
+  gather(drug, usage, alcohol.use:meth.use) %>%
+  mutate(drug = as.factor(drug)) %>%
+  filter(age == "22-23")
+
+
+ggplot(drugs3, aes(reorder(drug,-usage), usage)) + 
+  geom_bar(stat='identity', aes(fill=drug)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  ggtitle("Usage for sample group (22-23)") +
+  xlab('Substance') 
+```
+
+##Drug Frequency 
+
+*Median number of times a user in an age group used substance in the past 12 months*
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE} 
+
+
+drugsfrequency <- select(DrugRaw, age, n, alcohol.frequency, marijuana.frequency, cocaine.frequency, crack.frequency, heroin.frequency, hallucinogen.frequency, pain.releiver.frequency, tranquilizer.frequency,  sedative.frequency)
+
+drugsf <- drugsfrequency %>% 
+  gather(drug, frequency, alcohol.frequency:sedative.frequency) %>% 
+  mutate(drug = as.factor(drug))
+
+ggplot(drugsf, aes(drug, frequency)) + geom_bar(stat = "identity", aes(fill=drug)) + 
+  facet_wrap(~age) + 
+  coord_flip() +
+  scale_y_discrete(breaks=NULL) +
+  scale_x_discrete(breaks=NULL)
+
+```
+
+##Median amount of time a substance was used in a year for 22-23 year olds
+``` {r, echo=FALSE, warning=FALSE, message=FALSE}
+drugsf22 <- drugsfrequency %>% 
+  gather(drug, frequency, alcohol.frequency:sedative.frequency) %>% 
+  mutate(drug = as.factor(drug)) %>%
+  filter(age=="22-23")
+
+ggplot(drugsf22, aes(x=drug, y=frequency)) + geom_bar(stat='identity', aes(fill=drug)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  
+  
+```  
+  
